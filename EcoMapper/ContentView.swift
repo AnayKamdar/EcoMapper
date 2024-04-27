@@ -11,15 +11,15 @@ import Charts
 
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
-
+    
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \EEntity.userTemperature, ascending: true)],
         animation: .default)
     private var items: FetchedResults<EEntity>
-
+    
     @State private var showingHistory = false
     @State private var showingScatterPlot = false
-
+    
     var body: some View {
         NavigationView {
             List {
@@ -28,7 +28,7 @@ struct ContentView: View {
                         Text("EcoMapper")
                             .font(.largeTitle)
                             .foregroundColor(.primary)
-
+                        
                         Spacer()
                         
                         Image("Logo")
@@ -37,7 +37,7 @@ struct ContentView: View {
                             .frame(width: 100, height: 100)
                     }
                     .padding(.vertical)
-
+                    
                     NavigationLink("Input Environmental Data", destination: DataEnterView())
                     Button("History") {
                         showingHistory.toggle()
@@ -46,7 +46,7 @@ struct ContentView: View {
                         showingScatterPlot.toggle()
                     }
                 }
-
+                
                 if showingHistory {
                     Section {
                         ForEach(items) { item in
@@ -59,28 +59,15 @@ struct ContentView: View {
                                 Text("Longitude: \(item.longitude, specifier: "%.5f")")
                             }
                         }
-                        .onDelete(perform: deleteItems)
                     }
                 }
-
+                
                 if showingScatterPlot {
                     Section {
                         ScatterPlotView()
                             .frame(height: 500)
                     }
                 }
-            }
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            offsets.map { items[$0] }.forEach(viewContext.delete)
-            do {
-                try viewContext.save()
-            } catch {
-                let nsError = error as NSError
-                fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
             }
         }
     }
